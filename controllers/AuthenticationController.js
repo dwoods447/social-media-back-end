@@ -14,13 +14,11 @@ auth: {
 }));
 
 
-
-
 module.exports = {
 
     async userRegistration(req, res, next){
         let statusCode;
-        const { username, email, password,   } =  req.body;
+        const { username, email, password, gender  } =  req.body;
         const userName = await User.findOne({username: username});
         if(userName){
             statusCode = 422;
@@ -43,6 +41,10 @@ module.exports = {
             password: password,
             email: email,
             onlineStatus: false,
+            gender: gender,
+            generatedUser: 'false',
+            isProfileComplete:'false',
+         
             followers: {
                 users: [
                     
@@ -72,10 +74,10 @@ module.exports = {
         console.log('Sent Mail');
         transporter.sendMail({
             to: email,
-            from: 'MySocialApp',
-            subject: 'Welcome to MySocialApp',
+            from: 'InTheMixSocialApp',
+            subject: 'Welcome to InTheMixSocialApp',
             html: `
-            <h1>Welcome, ${newUser.username} to MySocialApp</h1>
+            <h1>Welcome, ${newUser.username} to InTheMixSocialApp</h1>
             <div>
               You have successfully registered!
             </div>
@@ -106,7 +108,7 @@ module.exports = {
         }
         console.log('Successfully signed in');
 
-        const returnedUser = await User.findOne({username: username}).select(["-password"])
+        const returnedUser = await User.findOne({username: username}, {password: 0})
         const token = jwt.sign({
             email: user.email, 
             userId: user._id.toString()
@@ -116,7 +118,7 @@ module.exports = {
         const decodedToken = jwt.verify(token, secret);  
          console.log(`Decoded Token ${JSON.stringify(decodedToken)}`);
          console.log(`Decoded Token Expires ${JSON.stringify(decodedToken.exp)}`);
-        res.status(200).json({token: token, user: returnedUser, tokenExpiresIn: decodedToken.exp});
+        res.status(200).json({token: token, user: returnedUser, tokenExpiresIn: decodedToken.exp, userId: user._id.toString()});
     },
 
     async userLogout(req, res, next){
@@ -178,7 +180,16 @@ module.exports = {
           
     },
 
-    
+    async checkEmailUnique(req, res, next){
+        const { email } =  req.body;
+        const userEmail = await User.findOne({email: email});
+        if(!userEmail){
+          return res.status(200).json({message: 'Email not found', emailExists: false});
+        }
+        return res.status(200).json({message: 'Email already exists!', emailExists: true});
+     },
+
+     
     async updatePassword(req, res, next){
         const { userId, token , password } = req.body;
         const  user = User.findOne({_id: userId}, {password: 0});

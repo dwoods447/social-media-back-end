@@ -49,10 +49,10 @@ app.use('/images', express.static(path.join(__dirname, 'images')));
 /*********** Routes **************/
 const auth = require('./routes/authentication.routes');
 const user = require('./routes/user.routes');
-
+const post  = require('./routes/post.routes');
 app.use(auth);
 app.use('/users', user);
-
+app.use('/posts', post)
 mongoose.connect(config.db.connectString, { useNewUrlParser: true, useUnifiedTopology: true })
 .then((result)=>{              
     const server = app.listen(port, host, () => {

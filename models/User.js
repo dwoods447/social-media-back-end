@@ -27,10 +27,18 @@ const UserSchema = new Schema({
         type: String,
         trim: true
     },
+    gender: { 
+        type: String
+    },
     onlineStatus: {
         type: Boolean,
     },
-
+    generatedUser :{
+        type: String, 
+    },
+    isProfileComplete:{
+        type: String, 
+    },
     followers: {
         users: [
             {
@@ -90,7 +98,7 @@ UserSchema.methods.removeImageFromProfile = function(imageId){
     const targetImg = this.images.imagePaths.find(target =>{
         return target.imageId.toString() === imageId;
       })
-       const imgPth = path.join(__dirname + '/./../../static/uploads/', targetImg.path);
+       const imgPth = path.join(__dirname + '/./../../assets/static/uploads/', targetImg.path);
        try{
          fs.unlinkSync(imgPth);
        } catch(err){
@@ -105,9 +113,9 @@ UserSchema.methods.removeImageFromProfile = function(imageId){
 }
 
 
-UserSchema.methods.addToFollower = function(userID){
+UserSchema.methods.addToFollower = function(user){
     const followerIndex = this.followers.users.findIndex(follower => {
-        return userID === follower.userId.toString();
+        return `user._id`.toString() === follower.userId.toString();
     });
 
     const updatedFollowers = [...this.followers.users];
@@ -115,11 +123,8 @@ UserSchema.methods.addToFollower = function(userID){
     if(followerIndex ===  -1){
          // User is not in block user list add them
          updatedFollowers.push({
-            userId: mongoose.Types.ObjectId(userID),
+            userId: user._id,
         })
-    }  else {
-            // User is already in follower list DONT add them
-            return;
     }
 
     const newFollowers = {

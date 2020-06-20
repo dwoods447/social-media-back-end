@@ -2,8 +2,10 @@ const jwt = require('jsonwebtoken');
 const config  = require('../config/config');
 module.exports = (req, res, next) => {
   const authorizedHeader = req.get('Authorization');
+  console.log('Checking Auth Token....');
   if(!authorizedHeader){
     const error  = new Error('Not Authenticated.');
+    console.log('Auth Token invalid');
     error.statusCode = 401;
     throw error;
   }
@@ -11,7 +13,9 @@ module.exports = (req, res, next) => {
   const token  = authorizedHeader.split(' ')[1];
   let decodedToken;
   try {
+    console.log('Decoding token.....');
     decodedToken = jwt.verify(token, config.authentication.jwtSecret);
+   
   } catch(err){
     err.statusCode = 500;
     throw err;
@@ -22,7 +26,7 @@ module.exports = (req, res, next) => {
     error.statusCode = 401;
     throw error;
   }
-
+  console.log('Valid Token on server'); 
     req.userId = decodedToken.userId;
     next();
 }
