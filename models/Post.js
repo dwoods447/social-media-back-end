@@ -8,8 +8,13 @@ const PostSchema = new Schema({
         required: 'Name is required' 
     },
     photo: {
-        data: Buffer,
-        contentType: String
+        imagePaths: [
+            {   
+                imageId: {type: Schema.Types.ObjectId},
+                path: { type: String, required: true},
+                date: {type: Date}
+            }
+        ],
     },
     postedBy: {type: mongoose.Schema.ObjectId, ref: 'User'},
     created: { type: Date, default: Date.now },
@@ -54,9 +59,43 @@ PostSchema.methods.addLikeToPost = function(liker){
             _id: liker._id,
             date: today,
         })
+    }else {
+        updatedLikes.splice(likerIndex, 1);
     }
+
+    
     this.likes = updatedLikes;
     return this.save();
 },
+
+
+PostSchema.methods.addImageToPost = function(imagePath){
+    console.log(`Image path rec'vd in method ${imagePath}`);
+    const updatedImages = [...this.photo.imagePaths];
+    if(updatedImages.length < 1){
+        console.log(`Image added!`);  
+        updatedImages.push({
+            imageId: mongoose.Types.ObjectId(),
+            path: imagePath,
+            date: new Date(),
+        })
+    } else {
+        updatedImages[0].path = imagePath;
+        updatedImages[0].date = new Date();
+    } 
+
+    this.photo.imagePaths = updatedImages;
+    return this.save();
+},
+PostSchema.methods.removeCommentFromPost = function(commentID){
+    const comments = [...this.comments];
+    const updatedComments = comments.filter(comment =>{
+        return comment.commentId.toString() !== commentID;   
+    })
+    this.comments =  updatedComments;
+    return this.save();
+}
+
+
 
 module.exports = mongoose.model('Post', PostSchema);

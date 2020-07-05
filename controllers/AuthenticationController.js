@@ -72,20 +72,20 @@ module.exports = {
         }
         
         console.log('Sent Mail');
-        transporter.sendMail({
-            to: email,
-            from: 'InTheMixSocialApp',
-            subject: 'Welcome to InTheMixSocialApp',
-            html: `
-            <h1>Welcome, ${newUser.username} to InTheMixSocialApp</h1>
-            <div>
-              You have successfully registered!
-            </div>
+        // transporter.sendMail({
+        //     to: email,
+        //     from: 'InTheMixSocialApp',
+        //     subject: 'Welcome to InTheMixSocialApp',
+        //     html: `
+        //     <h1>Welcome, ${newUser.username} to InTheMixSocialApp</h1>
+        //     <div>
+        //       You have successfully registered!
+        //     </div>
 
-            `
-        })
+        //     `
+        // })
         statusCode = 200;
-        return res.status(200).json({message: 'User succesfully signed up!', user: savedUser, statusCode: statusCode})
+        return res.status(statusCode).json({message: 'User succesfully signed up!', user: savedUser, statusCode: statusCode})
     },
    
 
@@ -112,7 +112,7 @@ module.exports = {
         const token = jwt.sign({
             email: user.email, 
             userId: user._id.toString()
-            }, secret, {expiresIn: '1h'});
+            }, secret, { expiresIn: '1h' });
         user.onlineStatus = true;
         user.save();    
         const decodedToken = jwt.verify(token, secret);  

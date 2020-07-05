@@ -71,23 +71,19 @@ const UserSchema = new Schema({
 
 
 UserSchema.methods.addImageToProfile = function(imagePath){
-    let fullPath = '';
-    let port = config.port.toString();
-    let host = config.host+':'+port;
-    
-    fullPath = path.join(host, imagePath);
-    fullPath = "http://"+fullPath;
+ 
     const updatedImages = [...this.images.imagePaths];
-    if(updatedImages.length <= 4){
+    if(updatedImages.length < 1){
+        console.log(`Image added!`);  
         updatedImages.push({
             imageId: mongoose.Types.ObjectId(),
-            path: fullPath,
+            path: imagePath,
             date: new Date(),
-        }) 
+        })
     } else {
-        // Only 4 images are allowed.
-        return false;
-    }
+        updatedImages[0].path = imagePath;
+        updatedImages[0].date = new Date();
+    } 
     
     this.images.imagePaths = updatedImages;
     return this.save();
@@ -115,7 +111,7 @@ UserSchema.methods.removeImageFromProfile = function(imageId){
 
 UserSchema.methods.addToFollower = function(user){
     const followerIndex = this.followers.users.findIndex(follower => {
-        return `user._id`.toString() === follower.userId.toString();
+        return user._id.toString() === follower._id.toString();
     });
 
     const updatedFollowers = [...this.followers.users];
@@ -123,7 +119,8 @@ UserSchema.methods.addToFollower = function(user){
     if(followerIndex ===  -1){
          // User is not in block user list add them
          updatedFollowers.push({
-            userId: user._id,
+             _id: mongoose.Types.ObjectId(user._id),
+            userId: mongoose.Types.ObjectId(user._id),
         })
     }
 
@@ -134,9 +131,9 @@ UserSchema.methods.addToFollower = function(user){
     return this.save();
 }
 
-UserSchema.methods.addToFollowing = function(userID){
+UserSchema.methods.addToFollowing = function(user){
     const followerIndex = this.following.users.findIndex(follower => {
-        return userID === follower.userId.toString();
+        return user._id.toString() === follower._id.toString();
     });
 
     const updatedFollowing = [...this.following.users];
@@ -144,13 +141,10 @@ UserSchema.methods.addToFollowing = function(userID){
     if(followerIndex ===  -1){
          // User is not in block user list add them
          updatedFollowing.push({
-            userId: mongoose.Types.ObjectId(userID),
+            _id: mongoose.Types.ObjectId(user._id), 
+            userId: mongoose.Types.ObjectId(user._id),
         })
-    }  else {
-            // User is already in follower list DONT add them
-            return;
     }
-
     const newFollowing = {
         users:  updatedFollowing
     }

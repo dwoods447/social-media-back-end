@@ -9,10 +9,13 @@ const isAuthenticated = require('../middleware/isAuthenticated')
 
 
 router.get('/all/users', UsersController.getAllUsers);
-router.get('/user/:userId', UsersController.getSingleUser);
-router.post('/user/:userId/update', UsersController.updateUser);
-router.post('/user/:userId/delete', UsersController.deleteUser);
+router.get('/find/user/:userId', UsersController.getSingleUser);
+router.get('/get/users/followed', isAuthenticated, UsersController.getAllUsersFollowed);
+router.get('/get/users/notfollowed', isAuthenticated, UsersController.getAllUsersNotFollowed)
+router.post('/update/user/:userId/edit', isAuthenticated, UsersController.updateUser);
+router.post('/user/:userId/delete', isAuthenticated, UsersController.deleteUser);
 router.post('/image/upload', isAuthenticated, UsersController.uploadImage);
-//router.post('/follow/user', isAuthenticated, followUser);
-//router.post('/unfollow/user', isAuthenticated, unFollowUser);
+router.post('/follow/user', isAuthenticated, UsersController.followUser);
+router.post('/unfollow/user', isAuthenticated, UsersController.unFollowUser);
+
 module.exports = router;

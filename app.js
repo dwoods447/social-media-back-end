@@ -8,6 +8,7 @@ const host = config.host;
 const mongoose = require('mongoose');
 const path = require('path')
 const multer = require('multer');
+
 app.use(cors());
 
 
@@ -60,6 +61,11 @@ mongoose.connect(config.db.connectString, { useNewUrlParser: true, useUnifiedTop
                 console.log("MonGoose connection created!" + result);
                 console.log(`Server started on ${host}:${port}`);    
      });
+
+     const io  = require('./socketio').init(server)
+        io.on('connection', socket => {
+            console.log('Client connected via web sockets');
+        });
 }).catch(()=>{
         console.log('Error connecting with Mongoose')
 });
